@@ -1,0 +1,134 @@
+Tranformaciones:
+
+Map:rdd = sc.parallelize([20, 25, 30, 35])
+rdd_fahrenheit = rdd.map(lambda c: c * 9/5 + 32)
+print(rdd_fahrenheit.collect())  # [68.0, 77.0, 86.0, 95.0]
+
+Filter:
+empleados_rdd = sc.parallelize([("Juan", 28), ("Ana", 35), ("Luis", 32), ("Marta", 27)])
+empleados_mayores = empleados_rdd.filter(lambda x: x[1] > 30)
+print(empleados_mayores.collect())
+
+FlatMap:
+parrafos_rdd = sc.parallelize(["Hola a todos", "Este es un ejemplo", "Usando Spark"])
+palabras_rdd = parrafos_rdd.flatMap(lambda x: x.split(" "))
+print(palabras_rdd.collect())
+Union:
+almacen1 = sc.parallelize(["producto_1", "producto_2", "producto_3"])
+almacen2 = sc.parallelize(["producto_2", "producto_4"])
+productos_totales = almacen1.union(almacen2)
+print(productos_totales.collect()) 
+
+Intersection:
+campaña_1 = sc.parallelize(["cliente_A", "cliente_B", "cliente_C"])
+campaña_2 = sc.parallelize(["cliente_B", "cliente_C", "cliente_D"])
+clientes_comunes = campaña_1.intersection(campaña_2)
+print(clientes_comunes.collect())
+
+Distinct:
+inventario = sc.parallelize(["producto_1", "producto_1", "producto_2", "producto_3", "producto_2"])
+inventario_unico = inventario.distinct()
+print(inventario_unico.collect())
+
+GroupByKey:
+ventas = sc.parallelize([("Electrónica", 100), ("Ropa", 50), ("Electrónica", 150), ("Juguetes", 200)])
+ventas_por_categoria = ventas.groupByKey().mapValues(list)
+print(ventas_por_categoria.collect()) 
+
+ReduceByKey:
+gastos = sc.parallelize([("cliente_A", 100), ("cliente_B", 150), ("cliente_A", 50)])
+total_gastos = gastos.reduceByKey(lambda x, y: x + y)
+print(total_gastos.collect())
+
+SortByKey:
+estudiantes = sc.parallelize([(85, "Ana"), (95, "Luis"), (75, "Juan")])
+estudiantes_ordenados = estudiantes.sortByKey(ascending=False)
+print(estudiantes_ordenados.collect())
+
+Join:
+ventas = sc.parallelize([("tienda_1", 1000), ("tienda_2", 2000)])
+ubicaciones = sc.parallelize([("tienda_1", "Madrid"), ("tienda_2", "Barcelona")])
+ventas_ubicaciones = ventas.join(ubicaciones)
+print(ventas_ubicaciones.collect())
+
+Cogroup:
+matematicas = sc.parallelize([("Juan", 85), ("Ana", 90)])
+ciencias = sc.parallelize([("Juan", 80), ("Ana", 95)])
+calificaciones = matematicas.cogroup(ciencias).mapValues(lambda x: (list(x[0]), list(x[1])))
+print(calificaciones.collect())
+
+Coalesce:
+datos = sc.parallelize(range(100), 10)
+datos_filtrados = datos.filter(lambda x: x % 2 == 0)
+datos_reducidos = datos_filtrados.coalesce(2)
+print(datos_reducidos.getNumPartitions())
+
+Acciones:
+
+Reduce:
+ingresos = sc.parallelize([25000, 30000, 22000, 27000])
+ingresos_totales = ingresos.reduce(lambda x, y: x + y)
+print(ingresos_totales)
+
+Collect:
+empleados = sc.parallelize(["Ana", "Juan", "Luis", "Marta"])
+nombres_empleados = empleados.collect()
+print(nombres_empleados)
+
+Count:
+inventario = sc.parallelize(["articulo_1", "articulo_2", "articulo_3", "articulo_4"])
+conteo_articulos = inventario.count()
+print(conteo_articulos)
+
+First:
+clientes = sc.parallelize(["cliente_A", "cliente_B", "cliente_C"])
+primer_cliente = clientes.first()
+print(primer_cliente) 
+
+Take:
+productos = sc.parallelize(["producto_1", "producto_2", "producto_3"])
+primeros_dos = productos.take(2)
+print(primeros_dos)
+
+SaveAsTextFile:
+sc = SparkContext("local", "Ejemplo saveAsTextFile")
+
+
+productos = sc.parallelize([
+    ("Producto_A", 150),
+    ("Producto_B", 50),
+    ("Producto_C", 200),
+    ("Producto_D", 80),
+    ("Producto_E", 300)
+])
+
+
+productos_mayores = productos.filter(lambda x: x[1] > 100)
+
+productos_mayores.saveAsTextFile("productos_mayores.txt")
+
+Max y Min:
+calificaciones = sc.parallelize([("Estudiante_A", 85), ("Estudiante_B", 95), ("Estudiante_C", 75)])
+max_calificacion = calificaciones.max(lambda x: x[1])
+min_calificacion = calificaciones.min(lambda x: x[1])
+print(max_calificacion)  # ('Estudiante_B', 95)
+print(min_calificacion)
+
+CountByKey:
+ventas = sc.parallelize([("producto_1", 1), ("producto_2", 1), ("producto_1", 1), ("producto_3", 1)])
+conteo_ventas = ventas.countByKey()
+print(conteo_ventas)
+
+Foreach:
+transacciones = sc.parallelize([
+    ("TX001", "Cliente_A", 250),
+    ("TX002", "Cliente_B", 500),
+    ("TX003", "Cliente_C", 750),
+    ("TX004", "Cliente_D", 1200)
+])
+
+
+transacciones_colectadas = transacciones.collect()
+for transaccion in transacciones_colectadas:
+    print(f"Procesando transacción {transaccion[0]} de {transaccion[1]} con monto ${transaccion[2]}")
+
